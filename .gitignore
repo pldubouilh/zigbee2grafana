@@ -1,0 +1,12 @@
+local/data/**
+!local/data/configuration.yaml
+
+local/ssh/*
+!local/ssh/.gitkeepme
+
+server/caddy/data/**
+!server/caddy/data/.gitkeepme
+server/prometheus/data/**
+!server/prometheus/data/.gitkeepme
+server/grafana/data/**
+!server/grafana/data/.gitkeepme

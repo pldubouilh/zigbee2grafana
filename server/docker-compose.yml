@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        volumes:
+            - ~/server/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ~/server/prometheus/data:/prometheus
+    grafana:
+        image: grafana/grafana:latest
+        volumes:
+            - ~/server/grafana/grafana.ini:/etc/grafana/grafana.ini
+            - ~/server/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+            - ~/server/grafana/data:/var/lib/grafana
+    mangle:
+        build:
+            context: ./mangler
+        volumes:
+            - ~/state.json:/state.json
+    caddy:
+        image: caddy:alpine
+        volumes:
+            - ~/server/caddy/data:/data
+            - ~/server/caddy/Caddyfile:/etc/caddy/Caddyfile
+        ports:
+            - 80:80
+            - 443:443
