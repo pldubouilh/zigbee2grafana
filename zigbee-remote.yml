@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+    zigbee:
+        privileged: true
+        build:
+            context: ./dockers/zigbee
+        volumes:
+            - ./data/zigbee:/app/data
+            - /run/udev:/run/udev:ro
+        devices:
+            - /dev/ttyACM0:/dev/ttyACM0
+    logic:
+        build:
+            context: ./dockers/logic
+        volumes:
+            - ./data/zigbee/state.json:/state.json
+    pushgw:
+        build:
+            context: ./dockers/pushgw
+        volumes:
+            - ./data/zigbee/state.json:/state.json
+            - ./data/pushgw/:/root/.ssh
+
+

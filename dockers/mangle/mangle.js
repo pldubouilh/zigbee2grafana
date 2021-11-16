@@ -1,6 +1,9 @@
 const fsPromise = require('fs').promises
 const http = require('http')
 
+const is_true  = val => val === "ON" || val === "on" || val === true || val === "LOCK"
+const is_false = val => val === "OFF" || val === "off" || val === false || val == "UNLOCK"
+
 // optionally set nickname for sensors here
 const sensors = {
   '0xaaaaaaaaaaaaa': 'living_room_temp',
@@ -13,11 +16,19 @@ async function mangleState () {
   const stateObj = JSON.parse(state)
 
   Object.keys(stateObj).forEach((key) => {
-    const nick = sensors[key] === undefined ? key : sensors[key]
+    const nick = sensors[key] === undefined ? "xx"+key : sensors[key] // if no nickname, prepend with xx to avoid upset prometheus
 
     Object.entries(stateObj[key]).forEach(([key, value]) => {
-      let val = value === false ? 0 : value === true ? 1 : value
-      ret += nick + '_' + key + '{} ' + val + '\n'
+      let val = is_false(value) ? 0 : is_true(value) ? 1 : value
+      let label = ""
+
+      if (isNaN(val)) {
+        return // for now
+        // label = `label=${val}`
+        // val = 1
+      }
+
+      ret += `${nick}_${key}{${label}} ${val}\n`
     })
   })
 

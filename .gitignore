@@ -1,12 +1,8 @@
-local/data/**
-!local/data/configuration.yaml
+data/*/**
+!data/*/.gitkeepme
 
-local/ssh/*
-!local/ssh/.gitkeepme
-
-server/caddy/data/**
-!server/caddy/data/.gitkeepme
-server/prometheus/data/**
-!server/prometheus/data/.gitkeepme
-server/grafana/data/**
-!server/grafana/data/.gitkeepme
+!data/caddy/Caddyfile
+!data/grafana/datasource.yml
+!data/grafana/grafana.ini
+!data/prometheus/prometheus.yml
+!data/zigbee/configuration.yaml

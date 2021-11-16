@@ -4,7 +4,7 @@ myserver.com
 # default login is user:someuser password:somepassword
 # update with "caddy hash-password"
 basicauth / {
-	someuser  JDJhJDE0JFl4N1F2SEpDS3BFeEZreEJzcFVWdmVvQ29QbmFrRU1qL0lPWkRxVk40cWNpQmFncHNpeHJP
+       someuser  JDJhJDE0JFl4N1F2SEpDS3BFeEZreEJzcFVWdmVvQ29QbmFrRU1qL0lPWkRxVk40cWNpQmFncHNpeHJP
 }
 
 reverse_proxy grafana:3000 {

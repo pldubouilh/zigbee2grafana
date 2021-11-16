@@ -1,54 +1,81 @@
 zigbee2grafana
 =========
 
-a convoluted setup to extract local zigbee sensor data, and export them onwards to a server for storage (prometheus), and display with grafana.
-access is gated and secured by [caddy](https://caddyserver.com/).
+![2021-11-16-13:10:42](https://user-images.githubusercontent.com/760637/142053394-65e2f879-c3a1-4012-97e7-445ff372732b.png)
 
-the code consists of a [bash script](https://github.com/pldubouilh/zigbee2grafana/blob/main/local/run.sh) to copy the local state of the sensors onto a remote server and [30 lines of JS](https://github.com/pldubouilh/zigbee2grafana/blob/main/server/mangler/mangle.js) to convert the state of the senors into something prometheus can process. the rest is glue and configfiles.
+a convoluted setup to extract local zigbee sensor data, take action depending on sensor state, or export data onwards for display with shiny grafana dashboards.
 
-#### remote setup
-get a server somewhere, setup DNS with a domain name
+the motivation was to use grafana/prometheus for visual dashboards, and using simple JS code for taking action based on sensor values [e.g. setting heating at certain time](https://github.com/pldubouilh/zigbee2grafana/blob/main/dockers/logic/index.js). 
+
+most of the code here consists of small scripts, and lots of glue. the real work is handled by [zigbee2mqtt](https://github.com/Koenkk/zigbee2mqtt)!
+
+## modes of operation
+
+3 modes of operations can be used - but in both cases, it needs a sensor and [one of these zigbee USB devices](https://www.amazon.de/-/en/dp/B08F9F276S/) plugged in locally.
+
+* local-only - zigbee gateway runs locally, and no UI is provided (enough for local logic)
+
+* local-local - zigbee gateway runs locally, and the UI runs locally (separate docker-compose)
+
+* local-remote - zigbee gateway runs locally, and the UI runs somewhere else (in a server you own)
+
+### local-local
 
 ```sh
-# copy code and send server bit over
+# prepare data folders
 % git clone https://github.com/pldubouilh/zigbee2grafana.git
-% scp -r zigbee2grafana/server myserver@:/root
+% cd zigbee2grafana
+% chmod 777 data/prometheus/data data/grafana/data
 
-# reach server
-% ssh myserver
-% cd server
+# start zigbee gateway
+% sudo docker-compose -f zigbee-local.yml
 
-# setup data folders rights
-% chmod 777 caddy/data prometheus/data grafana/data
+# start ui (separate shell)
+% sudo docker-compose -f ui-local.yml
 
-# amend caddy conf with domain name
-% vim caddy/Caddyfile
+# open browser at http://127.0.0.1:3000
+```
+
+### local-remote
+locally
+```sh
+% git clone https://github.com/pldubouilh/zigbee2grafana.git
+% cd zigbee2grafana
+
+# copy ssh keys over so that push gateway can send over state of sensors
+% cp ~/.ssh/iot data/pushgw/key
+% cp ~/.ssh/known_hosts data/pushgw
+
+# amend pushgateway with IP of server
+% vim data/pushgw/run.sh
+
+# start zigbee gateway
+% sudo docker-compose -f zigbee-remote.yml
+```
+
+and on the remote end
+```sh
+# prepare data folders
+% git clone https://github.com/pldubouilh/zigbee2grafana.git
+% cd zigbee2grafana
+% chmod 777 data/prometheus/data data/grafana/data
+
+# amend Caddyfile with domain name of server
+% vim data/caddy/Caddyfile
 
 # run
 % apt install docker-compose
-% docker-compose up
+% sudo docker-compose -f ui-remote.yml
+
+# open browser at https://mydomain.com - login details are in data/caddy/Caddyfile
 ```
 
-
-#### local setup
-get one of [these zigbee USB devices](https://www.amazon.de/-/en/dp/B08F9F276S/)
+### local-only
 
 ```sh
-# copy keys
-% cd zigbee2grafana/local
-% cp ~/.ssh/myserver.key ssh/key
-% cp ~/.ssh/known_hosts ssh
+% git clone https://github.com/pldubouilh/zigbee2grafana.git
+% cd zigbee2grafana
 
-# amend config file with IP of server
-% vim run.sh
-
-# run (sudo needed to pass USB device onto docker)
-% sudo make run
+# start zigbee gateway
+% sudo docker-compose -f zigbee-local.yml
 ```
-
-#### observe
-
-pair your device (usually longpress on the switch), it should be logging values on the local end.
-
-then log in on your server (details in [Caddyfile](https://github.com/pldubouilh/zigbee2grafana/blob/main/server/caddy/Caddyfile)), and explore the values being pushed. Additionally, set a friendly nickname to the sensor by amending `server/mangler/mangle.js` on the server.
-

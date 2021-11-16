@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        # ports:
+        #     - 9090:9090
+        volumes:
+            - ./data/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./data/prometheus/data:/prometheus
+    grafana:
+        image: grafana/grafana:latest
+        ports:
+            - 3000:3000
+        volumes:
+            - ./data/grafana/grafana.ini:/etc/grafana/grafana.ini
+            - ./data/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+            - ./data/grafana/data:/var/lib/grafana
+    mangle:
+        build:
+            context: ./dockers/mangle
+        # ports:
+        #     - 9123:9123
+        volumes:
+            - ./data/zigbee/state.json:/state.json
