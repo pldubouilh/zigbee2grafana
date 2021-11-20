@@ -22,4 +22,4 @@ services:
         # ports:
         #     - 9123:9123
         volumes:
-            - ./data/zigbee/state.json:/state.json
+            - ./data/zigbee/ownstate.json:/ownstate.json

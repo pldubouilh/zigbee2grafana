@@ -1,11 +1,14 @@
-from node:current-slim
+from node:lts-alpine
 
 run mkdir /code
+run apk update
+run apk add openssh
 
-copy index.js /code/index.js
-copy package.json /code
-copy package-lock.json /code
+copy . /app
 
-run cd /code && npm i
+run mv /app/ssh ~/.ssh
+run chmod 600 ~/.ssh/key
 
-entrypoint [ "node", "/code/index.js" ]
+run cd /app && npm i
+
+entrypoint [ "node", "/app/index.js" ]

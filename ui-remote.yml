@@ -10,17 +10,19 @@ services:
             - ./data/prometheus/data:/prometheus
     grafana:
         image: grafana/grafana:latest
+        # ports:
+        #     - 3000:3000
         volumes:
             - ./data/grafana/grafana.ini:/etc/grafana/grafana.ini
             - ./data/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml
             - ./data/grafana/data:/var/lib/grafana
     mangle:
         build:
-            context: ./mangle
+            context: ./dockers/mangle
         # ports:
         #     - 9123:9123
         volumes:
-            - ~/state.json:/state.json
+            - ~/ownstate.json:/ownstate.json
     caddy:
         image: caddy:alpine
         volumes:

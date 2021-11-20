@@ -1,6 +1,9 @@
 data/*/**
 !data/*/.gitkeepme
 
+dockers/logic/ssh/*
+!dockers/logic/ssh/.gitkeepme
+
 !data/caddy/Caddyfile
 !data/grafana/datasource.yml
 !data/grafana/grafana.ini

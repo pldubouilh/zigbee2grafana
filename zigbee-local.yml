@@ -3,8 +3,7 @@ version: "3.7"
 services:
     zigbee:
         privileged: true
-        build:
-            context: ./dockers/zigbee
+        image: koenkk/zigbee2mqtt
         volumes:
             - ./data/zigbee:/app/data
             - /run/udev:/run/udev:ro
@@ -14,4 +13,4 @@ services:
         build:
             context: ./dockers/logic
         volumes:
-            - ./data/zigbee/state.json:/state.json
+            - ./data/zigbee/ownstate.json:/ownstate.json
